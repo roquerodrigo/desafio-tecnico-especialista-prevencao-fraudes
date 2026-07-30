@@ -138,7 +138,7 @@ wrapper do Gradle cuida do resto.
 docker compose up -d --build
 ```
 
-Sobe, na ordem de dependência: PostgreSQL, DynamoDB Local, Kafka em modo KRaft, os quatro serviços,
+Sobe, na ordem de dependência: PostgreSQL, DynamoDB Local, Kafka em modo KRaft, os cinco serviços,
 e um container efêmero que popula as listas com a massa dos cenários abaixo.
 
 Aguardar readiness:
@@ -195,6 +195,8 @@ flowchart LR
         AUDIT["<b>servico-auditoria</b><br/>persiste a trilha"]
     end
 
+    GER["<b>gerador-trafego</b><br/><i>auxiliar</i> · gera carga e mede p95"]
+
     PG[(PostgreSQL<br/>3 schemas)]
     DDB[(DynamoDB<br/>3 tabelas)]
     K{{Kafka}}
@@ -213,13 +215,23 @@ flowchart LR
     MOTOR --- PG
     AUDIT --- PG
     LISTAS --- DDB
+
+    GER -.->|carga sob demanda| API
+    style GER stroke-dasharray: 5 5
 ```
 
-### Por que quatro serviços
+O `gerador-trafego` é auxiliar: não participa do fluxo de análise e sua ausência não afeta nenhum
+requisito funcional. Existe para tornar a meta de latência verificável — ela só é afirmável se for
+medida.
+
+### Por que quatro serviços de negócio
 
 O enunciado pede sistema distribuído e repete três vezes "desenvolver um serviço HTTP REST". A
 separação permite que cada dependência declare seu próprio modo de falha — e a diferença entre eles
 é a decisão de negócio mais importante do sistema (ver [ADR 0001](docs/adr/0001-topologia-quatro-servicos.md)).
+
+O quinto módulo, `gerador-trafego`, é auxiliar e está fora dessa contagem: não participa do fluxo de
+decisão ([ADR 0009](docs/adr/0009-gerador-trafego-como-modulo-java.md)).
 
 ### O princípio que organiza a persistência
 
@@ -432,7 +444,7 @@ inválidos de uma vez.
 `POST /v1/consultas-listas` · `POST /v1/scores`
 
 Todos os endpoints aceitam `X-Correlation-Id` e o devolvem na resposta. Se ausente, é gerado na
-borda e propagado pelos quatro serviços.
+borda e propagado por todos os serviços.
 
 ---
 
@@ -764,3 +776,9 @@ a garantia de que score nunca vaza na resposta.
   listas gerou, latência por dependência.
 - **Autorização por papel** nas rotas administrativas: hoje uma única chave dá acesso a tudo,
   inclusive a remover todas as regras.
+
+E uma sobre o método, não sobre o código: **rodar a análise de consistência também depois de
+implementar**, não só antes. O `analyze` roda entre o planejamento e a execução, comparando spec,
+plano e tarefas — mas nada compara o *código entregue* contra as tarefas que ele deveria ter
+cumprido. Foi exatamente aí que três tarefas ficaram marcadas como concluídas sem existir. Um
+segundo passe de verificação no fim teria pego isso antes de mim.

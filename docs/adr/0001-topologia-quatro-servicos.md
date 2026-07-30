@@ -14,6 +14,11 @@ orquestração, listas e motor de decisão. Ao mesmo tempo, avisa que o diagrama
 Quatro deployables independentes em monorepo Gradle: `api-analise-risco`, `servico-listas`,
 `motor-decisao` e `servico-auditoria`.
 
+> **Nota (2026-07-30)**: o repositório contém um quinto módulo, `gerador-trafego`, adicionado
+> depois. Ele é **auxiliar** — não participa do fluxo de análise e sua ausência não afeta nenhum
+> requisito funcional —, por isso está fora da contagem deste ADR, que trata da topologia de
+> negócio. O racional dele está no [ADR 0009](0009-gerador-trafego-como-modulo-java.md).
+
 ## Consequências
 
 **Positivas**

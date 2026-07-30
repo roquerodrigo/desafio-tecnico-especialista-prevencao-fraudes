@@ -19,23 +19,25 @@ DynamoDB Local). Docker precisa estar rodando.
 docker compose up -d --build
 ```
 
-Sobe, nesta ordem de dependencia: Postgres, DynamoDB Local, Kafka (KRaft), os quatro servicos e
-o container de seed, que popula as listas e encerra.
+Sobe, nesta ordem de dependencia: Postgres, DynamoDB Local, Kafka (KRaft), os cinco servicos e
+o container de seed, que popula as listas e encerra. O `gerador-trafego` sobe ocioso: nao gera
+carga ate ser acionado (cenario 11).
 
 Aguardar readiness:
 
 ```bash
-for p in 8080 8081 8082 8083; do
+for p in 8080 8081 8082 8083 8084; do
   curl -sf "http://localhost:$p/actuator/health" | grep -q UP && echo "porta $p OK"
 done
 ```
 
-| Servico | Porta |
-|---|---|
-| api-analise-risco | 8080 |
-| servico-listas | 8081 |
-| motor-decisao | 8082 |
-| servico-auditoria | 8083 |
+| Servico | Porta | Natureza |
+|---|---|---|
+| api-analise-risco | 8080 | negocio |
+| servico-listas | 8081 | negocio |
+| motor-decisao | 8082 | negocio |
+| servico-auditoria | 8083 | negocio |
+| gerador-trafego | 8084 | auxiliar |
 
 Swagger UI em `http://localhost:<porta>/swagger-ui.html`.
 
@@ -187,13 +189,38 @@ docker compose logs api-analise-risco | grep -c '52998224725'
 
 **Esperado**: `0`. O CPF aparece mascarado em log (`529****4725`), em claro apenas na trilha.
 
+### 11 — Carga e medicao de latencia (SC-001)
+
+```bash
+curl -s -X POST http://localhost:8084/v1/cargas \
+  -H 'X-Api-Key: chave-desenvolvimento' -H 'Content-Type: application/json' \
+  -d '{"duracaoSegundos":30,"requisicoesPorSegundo":50}'
+
+curl -s http://localhost:8084/v1/cargas/atual -H 'X-Api-Key: chave-desenvolvimento' | jq
+```
+
+**Esperado**: `erro: 0` — todo CPF gerado tem digito verificador valido; `p95` abaixo de 150 ms; e
+`decisoes` com aprovadas **e** negadas, prova de trafego calibrado. Cem por cento de aprovacao
+indicaria carga que nao exercita a composicao de regras.
+
+Confirme que o pipeline sustentou a carga — a trilha deve crescer exatamente o numero de
+requisicoes bem-sucedidas:
+
+```bash
+docker compose exec -T postgres psql -U acme -d auditoria -c \
+  "SELECT classificacao, decisao, COUNT(*) FROM trilha_decisao GROUP BY 1,2 ORDER BY 3 DESC;"
+```
+
+Uma carga por vez: iniciar outra durante a execucao devolve `409`, porque amostras misturadas
+tornariam o percentil sem significado.
+
 ## Rodar os testes
 
 ```bash
 ./gradlew clean build
 ```
 
-Executa testes unitarios e de integracao dos quatro modulos e aplica o gate de cobertura.
+Executa testes unitarios e de integracao dos cinco modulos e aplica o gate de cobertura.
 
 ```bash
 ./gradlew jacocoTestCoverageVerification

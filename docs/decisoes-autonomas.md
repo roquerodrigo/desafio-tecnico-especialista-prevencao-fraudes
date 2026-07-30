@@ -1,10 +1,12 @@
 # Decisoes tomadas sem consulta previa
 
-Este arquivo registra as decisoes que tomei durante a execucao autonoma do fluxo Spec Kit,
-depois da autorizacao para prosseguir sem aguardar confirmacao. Decisoes acordadas antes
-disso, em conversa, nao estao aqui — elas estao nos ADRs em `docs/adr/`.
+Este arquivo registra as decisoes tomadas durante a execucao autonoma do fluxo Spec Kit, apos
+autorizacao para prosseguir sem aguardar confirmacao a cada passo. As decisoes acordadas
+previamente estao nos ADRs em `docs/adr/`.
 
-Cada item traz a decisao, o motivo e o que consideraria se voce quiser reverter.
+Cada item traz a decisao, o motivo e o que seria necessario considerar para reverte-la. O objetivo
+e que nenhuma escolha feita sem consulta fique sem rastro — quem revisa consegue discordar de
+qualquer uma delas com o contexto completo em maos.
 
 ---
 
@@ -90,9 +92,9 @@ sintoma apareceria como score inexplicavelmente alto em producao. Como decidimos
 a estrutura do cadastro (item 5 acima e premissa do README), regras semanticamente inuteis
 **podem** ser cadastradas — logo elas precisam ser inertes, nao ativas por acidente.
 
-**Alternativa rejeitada**: validar compatibilidade campo×operador no cadastro. Foi descartada
-antes por decisao sua; e ainda assim nao bastaria, porque regras ja gravadas continuariam
-acionando.
+**Alternativa rejeitada**: validar compatibilidade campo×operador no cadastro. Ja havia sido
+descartada em decisao anterior (ver premissa 6 do README); e ainda assim nao bastaria, porque
+regras gravadas antes da validacao continuariam acionando.
 
 ### 7. `IGUAL` compara por `compareTo`, nao por `equals`
 

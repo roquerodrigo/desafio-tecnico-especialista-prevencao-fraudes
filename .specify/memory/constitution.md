@@ -27,6 +27,26 @@ Templates requiring updates:
   ✅ .specify/templates/tasks-template.md — revisado, categorias cobrem principios V e VII
 
 Follow-up TODOs: none
+
+---
+
+Version change: 1.0.0 → 1.1.0
+Rationale: MINOR. A tabela de topologia passa a distinguir servicos de negocio de servico
+auxiliar, e o quinto modulo (`gerador-trafego`) e incorporado. Nenhum principio foi removido
+nem redefinido; a mudanca amplia a orientacao existente.
+
+Modified sections:
+  - Restricoes Tecnicas > Topologia: 4 → 5 modulos, com a distincao de natureza
+
+Added principles: none
+Removed sections: none
+
+Templates requiring updates:
+  ✅ .specify/templates/plan-template.md — sem impacto (Constitution Check permanece valido)
+  ✅ .specify/templates/spec-template.md — sem impacto
+  ✅ .specify/templates/tasks-template.md — sem impacto
+
+Follow-up TODOs: none
 -->
 
 # Constituicao da Plataforma de Analise de Risco (Banco ACME)
@@ -174,18 +194,24 @@ operacao (log, mascarado) do dado de negocio (trilha, em claro) atende os dois.
 - Kafka em modo KRaft
 - JUnit 5, Mockito, Testcontainers, WireMock, JaCoCo, springdoc-openapi
 
-**Topologia** — monorepo multi-modulo, 4 deployables:
+**Topologia** — monorepo multi-modulo, 5 deployables:
 
-| Modulo | Responsabilidade |
-|---|---|
-| `api-analise-risco` | Orquestra, classifica score, decide |
-| `servico-listas` | Consulta CPF/IP/dispositivo |
-| `motor-decisao` | CRUD de regras e calculo de score |
-| `servico-auditoria` | Persiste a trilha de decisoes |
+| Modulo | Natureza | Responsabilidade |
+|---|---|---|
+| `api-analise-risco` | negocio | Orquestra, classifica score, decide |
+| `servico-listas` | negocio | Consulta CPF/IP/dispositivo |
+| `motor-decisao` | negocio | CRUD de regras e calculo de score |
+| `servico-auditoria` | negocio | Persiste a trilha de decisoes |
+| `gerador-trafego` | auxiliar | Gera trafego sintetico e mede latencia |
+
+O `gerador-trafego` e **auxiliar**: nao participa do fluxo de analise e sua ausencia nao afeta
+nenhum requisito funcional. Existe para tornar SC-001 verificavel — a meta de latencia so e
+afirmavel se for medida. Sujeita-se as mesmas regras dos demais, inclusive ao gate de cobertura,
+porque e codigo entregue.
 
 - **Database-per-service.** Um schema por servico; nenhum servico le a tabela de outro.
 - **Modulo compartilhado e proibido.** DTOs de fronteira sao duplicados de proposito e
-  traduzidos na ACL. Biblioteca comum acoplaria o ciclo de release dos quatro.
+  traduzidos na ACL. Biblioteca comum acoplaria o ciclo de release dos servicos.
 - A estrategia de acesso a dado MUST seguir o perfil do dado: volume alto com lookup
   pontual vai a banco sem cache local; volume baixo lido em toda transacao vai a cache em
   memoria invalidado por evento.
@@ -228,4 +254,4 @@ fase de pesquisa e ser reavaliado apos o design. Complexidade nao justificada MU
 removida ou registrada em Complexity Tracking, com a alternativa mais simples que foi
 rejeitada e o motivo.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-29 | **Last Amended**: 2026-07-29
+**Version**: 1.1.0 | **Ratified**: 2026-07-29 | **Last Amended**: 2026-07-30
