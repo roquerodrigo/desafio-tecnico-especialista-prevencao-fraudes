@@ -1,0 +1,21 @@
+app:
+  api-key: chave-de-teste
+  kafka:
+    grupo-trilha: auditoria-trilha-teste
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: localhost:1
+    listener:
+      # O consumidor e invocado diretamente nos testes; nao precisa de broker.
+      auto-startup: false
+
+logging:
+  level:
+    org.apache.kafka: ERROR
+    org.springframework.kafka: ERROR

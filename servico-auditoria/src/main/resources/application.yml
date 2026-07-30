@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: servico-auditoria
+
+  datasource:
+    url: ${JDBC_URL:jdbc:postgresql://localhost:5432/auditoria}
+    username: ${DB_USUARIO:acme}
+    password: ${DB_SENHA:acme}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVIDORES:localhost:9092}
+    consumer:
+      # Compartilhado, ao contrario dos consumidores de invalidacao de cache: aqui queremos
+      # distribuir o processamento para que cada decisao seja persistida uma unica vez.
+      group-id: ${app.kafka.grupo-trilha}
+      # earliest: nenhuma decisao pode ser perdida por reinicio do consumidor.
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        # O produtor envia o header __TypeId__ com o nome da SUA classe, que nao existe aqui —
+        # consequencia direta de nao haver modulo compartilhado entre os servicos. Ignorar o header
+        # e desserializar no tipo local e o que mantem os dois contratos independentes: o produtor
+        # pode renomear ou mover a classe dele sem quebrar este consumidor.
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: br.com.acme.auditoria.infraestrutura.mensageria.EventoDecisaoRegistrada
+        spring.json.trusted.packages: br.com.acme.auditoria.infraestrutura.mensageria
+
+server:
+  port: ${PORTA:8083}
+
+app:
+  api-key: ${API_KEY:chave-desenvolvimento}
+  kafka:
+    grupo-trilha: auditoria-trilha
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    br.com.acme: INFO

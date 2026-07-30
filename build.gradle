@@ -1,0 +1,103 @@
+plugins {
+    id 'org.springframework.boot' version "${springBootVersion}" apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'br.com.acme'
+    version = '1.0.0'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    jacoco {
+        toolVersion = "${jacocoVersion}"
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+        }
+    }
+
+    dependencies {
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        // Boot 4 modularizou as autoconfiguracoes de teste: MockMvc e @ServiceConnection vivem em
+        // artefatos proprios e nao vem transitivamente pelo starter-test.
+        testImplementation 'org.springframework.boot:spring-boot-webmvc-test'
+        testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+        testImplementation 'org.testcontainers:testcontainers'
+        testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    tasks.named('jacocoTestReport') {
+        dependsOn test
+        reports {
+            xml.required = true
+            html.required = true
+        }
+        classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoExclusoes())
+            })
+        )
+    }
+
+    tasks.named('jacocoTestCoverageVerification') {
+        dependsOn jacocoTestReport
+        violationRules {
+            rule {
+                limit {
+                    counter = 'LINE'
+                    value = 'COVEREDRATIO'
+                    minimum = 0.90
+                }
+            }
+        }
+        classDirectories.setFrom(
+            files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: jacocoExclusoes())
+            })
+        )
+    }
+
+    tasks.named('check') {
+        dependsOn jacocoTestCoverageVerification
+    }
+}
+
+/**
+ * Exclusoes do gate de cobertura. Cada entrada existe porque o codigo em questao nao
+ * carrega decisao de negocio testavel — nao para inflar a metrica.
+ */
+static List<String> jacocoExclusoes() {
+    [
+        // Bootstrap do Spring: o metodo main so delega para SpringApplication.run
+        '**/*Application.class',
+        // Declaracao de beans; exercitada indiretamente por todo teste de integracao
+        '**/config/**',
+        '**/*Configuration.class',
+        // Records de fronteira sem logica: acessores gerados pelo compilador
+        '**/dto/**',
+        // Contratos de porta e enums sem comportamento proprio
+        '**/porta/**'
+    ]
+}

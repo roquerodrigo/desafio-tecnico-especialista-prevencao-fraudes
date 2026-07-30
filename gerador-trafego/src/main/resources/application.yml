@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: gerador-trafego
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: ${PORTA:8084}
+
+app:
+  api-key: ${API_KEY:chave-desenvolvimento}
+  servicos:
+    analise-risco:
+      url: ${URL_API_ANALISE_RISCO:http://localhost:8080}
+  http:
+    # Mais folgados que os da api-analise-risco: aqui o timeout serve para nao travar a carga
+    # indefinidamente, nao para proteger um caminho critico. Um timeout curto demais contaria
+    # como erro o que e apenas latencia sob carga — e distorceria a propria medicao.
+    timeout-conexao-ms: ${TIMEOUT_CONEXAO_MS:2000}
+    timeout-leitura-ms: ${TIMEOUT_LEITURA_MS:5000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    br.com.acme: INFO

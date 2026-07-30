@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: servico-listas
+
+server:
+  port: ${PORTA:8081}
+
+app:
+  api-key: ${API_KEY:chave-desenvolvimento}
+  dynamodb:
+    # Vazio usa a resolucao padrao da AWS; preenchido aponta para o DynamoDB Local.
+    endpoint: ${DYNAMODB_ENDPOINT:http://localhost:8000}
+    regiao: ${AWS_REGIAO:us-east-1}
+    chave-acesso: ${AWS_CHAVE_ACESSO:local}
+    chave-secreta: ${AWS_CHAVE_SECRETA:local}
+    # Ligado em desenvolvimento e teste. Em producao, as tabelas vem de IaC e isto fica false.
+    criar-tabelas: ${CRIAR_TABELAS:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    br.com.acme: INFO
+    # Piso deliberado: em DEBUG o Spring Web registra o corpo desserializado da requisicao, com os
+    # identificadores do cliente em claro, contornando o mascaramento da aplicacao.
+    org.springframework.web: INFO

@@ -1,0 +1,208 @@
+name: analise-risco
+
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: acme
+      POSTGRES_PASSWORD: acme
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - dados-postgres:/var/lib/postgresql/data
+      - ./infra/postgres-init.sql:/docker-entrypoint-initdb.d/01-cria-bancos.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acme -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "/data"]
+    working_dir: /home/dynamodblocal
+    user: root
+    ports:
+      - "8000:8000"
+    volumes:
+      - dados-dynamodb:/data
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8000 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  kafka:
+    image: apache/kafka:3.9.0
+    environment:
+      # Modo KRaft: sem Zookeeper.
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      # Host vazio faz bind em todas as interfaces sem que o Kafka derive um advertised
+      # 0.0.0.0 para o listener CONTROLLER, que ele rejeita como nao roteavel.
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNO://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNO://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNO:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "29092:29092"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+
+  motor-decisao:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      args:
+        MODULO: motor-decisao
+    environment:
+      JDBC_URL: jdbc:postgresql://postgres:5432/motor_decisao
+      DB_USUARIO: acme
+      DB_SENHA: acme
+      KAFKA_SERVIDORES: kafka:9092
+      API_KEY: chave-desenvolvimento
+      HOSTNAME: motor-decisao-1
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  servico-listas:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      args:
+        MODULO: servico-listas
+    environment:
+      DYNAMODB_ENDPOINT: http://dynamodb:8000
+      AWS_REGIAO: us-east-1
+      AWS_CHAVE_ACESSO: local
+      AWS_CHAVE_SECRETA: local
+      CRIAR_TABELAS: "true"
+      API_KEY: chave-desenvolvimento
+    ports:
+      - "8081:8081"
+    depends_on:
+      dynamodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  api-analise-risco:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      args:
+        MODULO: api-analise-risco
+    environment:
+      JDBC_URL: jdbc:postgresql://postgres:5432/analise_risco
+      DB_USUARIO: acme
+      DB_SENHA: acme
+      KAFKA_SERVIDORES: kafka:9092
+      URL_SERVICO_LISTAS: http://servico-listas:8081
+      URL_MOTOR_DECISAO: http://motor-decisao:8082
+      API_KEY: chave-desenvolvimento
+      HOSTNAME: api-analise-risco-1
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      motor-decisao:
+        condition: service_healthy
+      servico-listas:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  servico-auditoria:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      args:
+        MODULO: servico-auditoria
+    environment:
+      JDBC_URL: jdbc:postgresql://postgres:5432/auditoria
+      DB_USUARIO: acme
+      DB_SENHA: acme
+      KAFKA_SERVIDORES: kafka:9092
+      API_KEY: chave-desenvolvimento
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  # Sobe ocioso: nao gera trafego ate receber POST /v1/cargas. A carga e uma decisao explicita de
+  # quem demonstra, nao um efeito colateral de `docker compose up`.
+  gerador-trafego:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+      args:
+        MODULO: gerador-trafego
+    environment:
+      URL_API_ANALISE_RISCO: http://api-analise-risco:8080
+      API_KEY: chave-desenvolvimento
+    ports:
+      - "8084:8084"
+    depends_on:
+      api-analise-risco:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8084/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  # Container efemero: popula as listas com a massa dos cenarios do quickstart e encerra.
+  seed:
+    image: alpine:3.21
+    depends_on:
+      servico-listas:
+        condition: service_healthy
+    volumes:
+      - ./infra/seed-listas.sh:/seed-listas.sh:ro
+    entrypoint: ["/bin/sh", "/seed-listas.sh"]
+    environment:
+      URL_LISTAS: http://servico-listas:8081
+      API_KEY: chave-desenvolvimento
+
+volumes:
+  dados-postgres:
+  dados-dynamodb:

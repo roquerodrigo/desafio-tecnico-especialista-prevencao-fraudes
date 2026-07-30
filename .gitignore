@@ -1,0 +1,13 @@
+# Artefatos de build
+build/
+.gradle/
+out/
+bin/
+
+# Cache de execucao dos scripts Python do Spec Kit
+__pycache__/
+*.py[cod]
+
+# Sistema operacional e logs
+.DS_Store
+*.log

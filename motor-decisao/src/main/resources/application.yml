@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: motor-decisao
+
+  datasource:
+    url: ${JDBC_URL:jdbc:postgresql://localhost:5432/motor_decisao}
+    username: ${DB_USUARIO:acme}
+    password: ${DB_SENHA:acme}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVIDORES:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      # group.id unico por instancia: invalidacao de cache exige fan-out para todas as replicas.
+      # Com group compartilhado, o Kafka entregaria o evento a uma unica replica.
+      group-id: ${app.kafka.grupo-cache-regras}
+      # latest porque o Postgres e a fonte de verdade e o evento e apenas um sinal para reler.
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: br.com.acme.motordecisao.infraestrutura.mensageria
+
+server:
+  port: ${PORTA:8082}
+
+app:
+  kafka:
+    grupo-cache-regras: motor-decisao-cache-${HOSTNAME:local}
+  api-key: ${API_KEY:chave-desenvolvimento}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    br.com.acme: INFO
+    # Piso deliberado: em DEBUG o Spring Web registra o corpo desserializado da requisicao, com os
+    # identificadores do cliente em claro, contornando o mascaramento da aplicacao.
+    org.springframework.web: INFO

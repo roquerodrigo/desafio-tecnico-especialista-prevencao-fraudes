@@ -1,0 +1,31 @@
+app:
+  api-key: chave-de-teste
+  kafka:
+    grupo-cache-faixas: analise-risco-cache-teste
+  http:
+    timeout-conexao-ms: 500
+    timeout-leitura-ms: 1000
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: localhost:1
+    listener:
+      auto-startup: false
+    producer:
+      properties:
+        max.block.ms: 100
+        delivery.timeout.ms: 200
+        request.timeout.ms: 100
+        retries: 0
+
+logging:
+  level:
+    # Espelha o piso de producao: sem isso o teste de mascaramento nao verificaria a configuracao real.
+    org.springframework.web: INFO
+    org.apache.kafka: ERROR
+    org.springframework.kafka: ERROR

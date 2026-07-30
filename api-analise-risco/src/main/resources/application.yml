@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: api-analise-risco
+
+  datasource:
+    url: ${JDBC_URL:jdbc:postgresql://localhost:5432/analise_risco}
+    username: ${DB_USUARIO:acme}
+    password: ${DB_SENHA:acme}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  kafka:
+    bootstrap-servers: ${KAFKA_SERVIDORES:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      # Unico por instancia: invalidacao de cache precisa de fan-out para todas as replicas.
+      group-id: ${app.kafka.grupo-cache-faixas}
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: br.com.acme.analiserisco.infraestrutura.mensageria
+
+server:
+  port: ${PORTA:8080}
+
+app:
+  api-key: ${API_KEY:chave-desenvolvimento}
+  kafka:
+    grupo-cache-faixas: analise-risco-cache-${HOSTNAME:local}
+  servicos:
+    listas:
+      url: ${URL_SERVICO_LISTAS:http://localhost:8081}
+    motor-decisao:
+      url: ${URL_MOTOR_DECISAO:http://localhost:8082}
+  http:
+    # Curtos de proposito: cabem no orcamento de 150 ms do p95 e fazem a degradacao disparar
+    # rapido em vez de prender threads esperando um vizinho lento.
+    timeout-conexao-ms: ${TIMEOUT_CONEXAO_MS:500}
+    timeout-leitura-ms: ${TIMEOUT_LEITURA_MS:1000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    br.com.acme: INFO
+    # Piso deliberado, nao default. Em DEBUG, o Spring Web registra o corpo desserializado da
+    # requisicao — "Read [AnaliseRiscoRequest[cpf=52998224725, ip=..." — com CPF, IP e dispositivo
+    # em claro, contornando todo o mascaramento da aplicacao. Como ligar DEBUG para investigar um
+    # incidente e rotina, o nivel fica fixo aqui para que isso nao seja possivel por acidente.
+    # Coberto por MascaramentoLogIT.
+    org.springframework.web: INFO

@@ -1,0 +1,7 @@
+rootProject.name = 'analise-risco'
+
+include 'api-analise-risco'
+include 'servico-listas'
+include 'motor-decisao'
+include 'servico-auditoria'
+include 'gerador-trafego'

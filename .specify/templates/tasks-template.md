@@ -9,7 +9,7 @@ description: "Task list template for feature implementation"
 
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: MANDATORY in this project. Constitution Principle V (Testabilidade Obrigatoria, NAO NEGOCIAVEL) requires unit tests for the domain, integration tests per service, and a JaCoCo global gate of 90% that fails the build. Task lists MUST include test tasks.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 

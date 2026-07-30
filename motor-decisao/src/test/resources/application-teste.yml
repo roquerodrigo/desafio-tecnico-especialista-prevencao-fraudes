@@ -1,0 +1,28 @@
+app:
+  api-key: chave-de-teste
+  kafka:
+    grupo-cache-regras: motor-decisao-cache-teste
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: localhost:1
+    listener:
+      # Sem broker no teste de contrato: o listener nao deve tentar conectar nem falhar a subida.
+      auto-startup: false
+    producer:
+      properties:
+        # Falha rapido em vez de bloquear a thread aguardando metadados de um broker inexistente.
+        max.block.ms: 100
+        delivery.timeout.ms: 200
+        request.timeout.ms: 100
+        retries: 0
+
+logging:
+  level:
+    org.apache.kafka: ERROR
+    org.springframework.kafka: ERROR
