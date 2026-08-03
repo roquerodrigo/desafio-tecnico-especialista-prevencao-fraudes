@@ -1,7 +1,9 @@
 rootProject.name = 'analise-risco'
 
-include 'api-analise-risco'
-include 'servico-listas'
-include 'motor-decisao'
-include 'servico-auditoria'
-include 'gerador-trafego'
+// Os modulos vivem em `modulos/`, mas o caminho Gradle segue liso (`:motor-decisao`, nao
+// `:modulos:motor-decisao`): a pasta e organizacao de diretorio, nao um projeto intermediario.
+['api-analise-risco', 'servico-listas', 'motor-decisao', 'servico-auditoria', 'gerador-trafego']
+    .each { modulo ->
+        include modulo
+        project(":${modulo}").projectDir = file("modulos/${modulo}")
+    }

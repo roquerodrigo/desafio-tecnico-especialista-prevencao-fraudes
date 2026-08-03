@@ -20,6 +20,21 @@
       <module name="analise-risco.servico-listas" options="-parameters" />
       <module name="analise-risco.servico-listas.main" options="-parameters" />
       <module name="analise-risco.servico-listas.test" options="-parameters" />
+      <module name="br.com.acme.analise-risco.api-analise-risco" options="-parameters" />
+      <module name="br.com.acme.analise-risco.api-analise-risco.main" options="-parameters" />
+      <module name="br.com.acme.analise-risco.api-analise-risco.test" options="-parameters" />
+      <module name="br.com.acme.analise-risco.gerador-trafego" options="-parameters" />
+      <module name="br.com.acme.analise-risco.gerador-trafego.main" options="-parameters" />
+      <module name="br.com.acme.analise-risco.gerador-trafego.test" options="-parameters" />
+      <module name="br.com.acme.analise-risco.motor-decisao" options="-parameters" />
+      <module name="br.com.acme.analise-risco.motor-decisao.main" options="-parameters" />
+      <module name="br.com.acme.analise-risco.motor-decisao.test" options="-parameters" />
+      <module name="br.com.acme.analise-risco.servico-auditoria" options="-parameters" />
+      <module name="br.com.acme.analise-risco.servico-auditoria.main" options="-parameters" />
+      <module name="br.com.acme.analise-risco.servico-auditoria.test" options="-parameters" />
+      <module name="br.com.acme.analise-risco.servico-listas" options="-parameters" />
+      <module name="br.com.acme.analise-risco.servico-listas.main" options="-parameters" />
+      <module name="br.com.acme.analise-risco.servico-listas.test" options="-parameters" />
     </option>
   </component>
 </project>

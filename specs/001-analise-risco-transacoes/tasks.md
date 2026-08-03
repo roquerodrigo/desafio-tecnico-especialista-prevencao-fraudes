@@ -22,8 +22,8 @@ testavel isoladamente.
 
 ## Path Conventions
 
-Monorepo Gradle multi-modulo na raiz. Modulos: `api-analise-risco/`, `servico-listas/`,
-`motor-decisao/`, `servico-auditoria/`. Dentro de cada um:
+Monorepo Gradle multi-modulo com os modulos sob `modulos/`: `modulos/api-analise-risco/`, `modulos/servico-listas/`,
+`modulos/motor-decisao/`, `modulos/servico-auditoria/`. Dentro de cada um:
 `src/main/java/br/com/acme/<servico>/{dominio,aplicacao,infraestrutura}/`.
 
 Convencao de teste: `*Test.java` = unitario (sem Docker); `*IT.java` = integracao (Testcontainers).
@@ -38,10 +38,10 @@ Convencao de teste: `*Test.java` = unitario (sem Docker); `*IT.java` = integraca
 - [x] T002 Criar `build.gradle` raiz com convencoes comuns: toolchain Java 25, plugin Spring Boot 4.1.0, `io.spring.dependency-management`, repositorio Maven Central, e bloco `subprojects` aplicando java/jacoco
 - [x] T003 Configurar JaCoCo 0.8.15 no `build.gradle` raiz com `jacocoTestCoverageVerification` em 90% de linha, task agregadora, e exclusoes justificadas por comentario (classes `*Application`, `*Configuration`, DTOs sem logica)
 - [x] T004 Gerar o Gradle wrapper na versao 9.6.1 e versionar `gradlew`, `gradlew.bat` e `gradle/wrapper/`
-- [x] T005 [P] Criar `api-analise-risco/build.gradle` com starters web/validation/actuator/data-jpa, spring-kafka, flyway, postgresql, springdoc 3.0.3 e deps de teste
-- [x] T006 [P] Criar `servico-listas/build.gradle` com starters web/validation/actuator, `software.amazon.awssdk:dynamodb-enhanced:2.49.5`, springdoc e deps de teste
-- [x] T007 [P] Criar `motor-decisao/build.gradle` com starters web/validation/actuator/data-jpa, spring-kafka, flyway, postgresql, springdoc e deps de teste
-- [x] T008 [P] Criar `servico-auditoria/build.gradle` com starters web/actuator/data-jpa, spring-kafka, flyway, postgresql, springdoc e deps de teste
+- [x] T005 [P] Criar `modulos/api-analise-risco/build.gradle` com starters web/validation/actuator/data-jpa, spring-kafka, flyway, postgresql, springdoc 3.0.3 e deps de teste
+- [x] T006 [P] Criar `modulos/servico-listas/build.gradle` com starters web/validation/actuator, `software.amazon.awssdk:dynamodb-enhanced:2.49.5`, springdoc e deps de teste
+- [x] T007 [P] Criar `modulos/motor-decisao/build.gradle` com starters web/validation/actuator/data-jpa, spring-kafka, flyway, postgresql, springdoc e deps de teste
+- [x] T008 [P] Criar `modulos/servico-auditoria/build.gradle` com starters web/actuator/data-jpa, spring-kafka, flyway, postgresql, springdoc e deps de teste
 - [x] T009 Adicionar ao `build.gradle` raiz o `testcontainers-bom:2.0.5` e `wiremock-jetty12:3.13.2` nas dependencias de teste dos subprojetos, usando os artefatos com prefixo `testcontainers-`
 - [x] T010 Criar as quatro classes `*Application` com `@SpringBootApplication` e validar `./gradlew build` verde com os modulos vazios
 
@@ -54,7 +54,7 @@ Convencao de teste: `*Test.java` = unitario (sem Docker); `*IT.java` = integraca
 **Purpose**: infraestrutura transversal exigida por todas as stories. Nenhuma story comeca antes.
 
 - [x] T011 Criar `docker-compose.yml` com Postgres (**3** schemas: `analise_risco`, `motor_decisao`, `auditoria` — `servico-listas` nao usa Postgres), `amazon/dynamodb-local`, Kafka em KRaft, os quatro servicos e o container de seed, com `depends_on` por healthcheck
-- [x] T012 [P] Criar `ValidadorCpf` em `api-analise-risco/src/main/java/br/com/acme/analiserisco/dominio/ValidadorCpf.java`, validando 11 digitos, digito verificador do modulo 11 e rejeitando sequencias de digito repetido
+- [x] T012 [P] Criar `ValidadorCpf` em `modulos/api-analise-risco/src/main/java/br/com/acme/analiserisco/dominio/ValidadorCpf.java`, validando 11 digitos, digito verificador do modulo 11 e rejeitando sequencias de digito repetido
 - [x] T013 [P] Criar `ValidadorCpfTest` cobrindo CPF valido, DV invalido, as onze sequencias repetidas, tamanho errado e caracteres nao numericos
 - [x] T014 [P] Criar `MascaradorDadosSensiveis` em cada modulo que registra log, mascarando CPF (`529****4725`), IP (ultimo octeto) e UUID de dispositivo
 - [x] T015 [P] Criar `MascaradorDadosSensiveisTest` verificando que nenhum valor completo sobrevive ao mascaramento
@@ -79,7 +79,7 @@ efeito via API, sem reiniciar servico.
 
 > Executada antes da US1 porque a US1 depende do motor para obter score. Sem regras nao ha score.
 
-- [x] T023 [P] [US2] Criar enums `Campo`, `Operador`, `OperadorLogico`, `TipoAcao` em `motor-decisao/src/main/java/br/com/acme/motordecisao/dominio/regra/`
+- [x] T023 [P] [US2] Criar enums `Campo`, `Operador`, `OperadorLogico`, `TipoAcao` em `modulos/motor-decisao/src/main/java/br/com/acme/motordecisao/dominio/regra/`
 - [x] T024 [P] [US2] Criar value objects `Acao` e `Condicao` em `dominio/regra/`, com validacao na construcao (`pontos > 0`, campos obrigatorios)
 - [x] T025 [US2] Criar o agregado `Regra` em `dominio/regra/Regra.java` com a invariante de natureza: escada nao coexiste com condicoes, e regra condicional exige condicoes nao vazias
 - [x] T026 [P] [US2] Criar `RegraTest` cobrindo a invariante de natureza, rejeicao do hibrido e construcao valida de cada natureza
@@ -190,7 +190,7 @@ apenas a decisao, coerente com as regras.
 - [x] T079 [US5] Criar `CarregarListasUseCase` em `aplicacao/` gravando entradas de forma idempotente por variavel
 - [x] T080 [US5] Criar DTOs de carga e `CargaListasController` expondo `PUT /v1/listas` protegido por `X-Api-Key`
 - [x] T081 [US5] Implementar as validacoes de coerencia por tipo: `permissiva` apenas para CPF, `expiraEm` apenas para IP e no futuro, limite de 500 entradas por lote
-- [x] T081a [US5] Criar `ValidadorCpf` tambem em `servico-listas/src/main/java/br/com/acme/listas/dominio/`, aplicado na carga e na consulta. Duplicacao deliberada: nao existe modulo compartilhado, e a alternativa seria aceitar CPF invalido nas listas — entrada que nunca casaria com a consulta validada da api-analise-risco
+- [x] T081a [US5] Criar `ValidadorCpf` tambem em `modulos/servico-listas/src/main/java/br/com/acme/listas/dominio/`, aplicado na carga e na consulta. Duplicacao deliberada: nao existe modulo compartilhado, e a alternativa seria aceitar CPF invalido nas listas — entrada que nunca casaria com a consulta validada da api-analise-risco
 - [x] T082 [P] [US5] Criar `CarregarListasUseCaseTest` cobrindo cada validacao rejeitada e a sobrescrita idempotente
 - [x] T083 [US5] Criar `CargaListasIT` validando o ciclo consultar-carregar-consultar e o `401` sem credencial
 - [x] T084 [US5] Criar o script de seed usado pelo container do compose, populando a massa dos cenarios do quickstart via `PUT /v1/listas`
@@ -225,7 +225,7 @@ apenas a decisao, coerente com as regras.
 **Purpose**: propagar alteracoes de configuracao a todas as replicas.
 
 - [x] T095 Criar `@Bean NewTopic` para `regras.atualizadas` em `motor-decisao` e para `faixas.atualizadas` e `decisoes.registradas` em `api-analise-risco`
-- [x] T096 Criar `PublicadorEventoRegras` em `motor-decisao/infraestrutura/mensageria/`, acionado por toda escrita do CRUD
+- [x] T096 Criar `PublicadorEventoRegras` em `modulos/motor-decisao/infraestrutura/mensageria/`, acionado por toda escrita do CRUD
 - [x] T097 Criar `ConsumidorEventoRegras` com `group.id` unico por instancia (sufixo de hostname) e `auto-offset-reset=latest`, disparando recarga do `CacheRegras`
 - [x] T098 [P] Criar `PublicadorEventoFaixas` e `ConsumidorEventoFaixas` em `api-analise-risco` com a mesma estrategia de `group.id`
 - [x] T099 Criar `InvalidacaoCacheRegrasIT` com Kafka via Testcontainers: alterar regra, aguardar o evento e confirmar que a proxima avaliacao usa a regra nova

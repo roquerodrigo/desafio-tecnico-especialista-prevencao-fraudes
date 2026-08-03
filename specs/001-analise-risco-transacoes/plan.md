@@ -102,7 +102,7 @@ docs/
 ├── adr/                            # um ADR por decisao arquitetural
 └── decisoes-autonomas.md           # decisoes tomadas em execucao autonoma
 
-api-analise-risco/
+modulos/api-analise-risco/
 ├── build.gradle
 └── src/
     ├── main/java/br/com/acme/analiserisco/
@@ -118,13 +118,13 @@ api-analise-risco/
     ├── main/resources/db/migration/
     └── test/java/...
 
-servico-listas/
+modulos/servico-listas/
 └── src/main/java/br/com/acme/listas/
     ├── dominio/                    # Variavel, Pertinencia, ResultadoConsulta
     ├── aplicacao/
     └── infraestrutura/{web,dynamodb,observabilidade}
 
-motor-decisao/
+modulos/motor-decisao/
 └── src/main/java/br/com/acme/motordecisao/
     ├── dominio/
     │   ├── regra/                  # Regra, Escada, Condicao, Acao, Campo, Operador
@@ -133,7 +133,7 @@ motor-decisao/
     ├── aplicacao/                  # CalcularScoreUseCase, CRUD de regras
     └── infraestrutura/{web,persistencia,cache,mensageria,observabilidade}
 
-servico-auditoria/
+modulos/servico-auditoria/
 └── src/main/java/br/com/acme/auditoria/
     ├── dominio/                    # TrilhaDecisao
     ├── aplicacao/
