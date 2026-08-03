@@ -12,9 +12,6 @@ Calcula o score de risco. Publico (intra-cluster).
 
 ```json
 {
-  "cpf": "52998224725",
-  "ip": "203.0.113.42",
-  "idDispositivo": "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
   "tipoTransacao": "PIX",
   "valorTransacao": 1500.00,
   "cpfEmListaPermissiva": false,
@@ -27,18 +24,23 @@ Calcula o score de risco. Publico (intra-cluster).
 Os quatro booleanos sao obrigatorios. O motor nao consulta listas — ele recebe o resultado ja
 apurado. Isso mantem o motor puro (mesma entrada, mesmo score) e testavel sem rede.
 
+O corpo **nao carrega CPF, IP nem identificador de dispositivo**: o motor decide sobre pertinencia
+ja apurada, e dado pessoal que ele nao usa nao deve atravessar essa fronteira.
+
 **200 OK**
 
 ```json
 {
-  "score": 700,
+  "score": 600,
   "regrasAcionadas": [
     { "id": "…", "chave": "faixa_valor_2", "descricao": "PIX de R$300,01 a R$5.000,00", "acao": "SOMAR", "pontos": 400 },
-    { "id": "…", "chave": "cpf_lista_restritiva", "descricao": "CPF em lista restritiva", "acao": "SOMAR", "pontos": 200 },
-    { "id": "…", "chave": "faixa_valor_2", "descricao": "…", "acao": "SOMAR", "pontos": 100 }
+    { "id": "…", "chave": "cpf_lista_restritiva", "descricao": "PIX: CPF em lista restritiva", "acao": "SOMAR", "pontos": 200 }
   ]
 }
 ```
+
+Cada chave aparece no maximo uma vez: a composicao por chave de sobreposicao garante que apenas
+uma regra por chave chega ao calculo, e cada escada contribui com uma unica faixa.
 
 `score` e sempre inteiro ≥ 1 (piso aplicado uma unica vez ao final).
 

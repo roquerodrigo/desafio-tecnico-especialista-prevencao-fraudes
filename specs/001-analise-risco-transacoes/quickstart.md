@@ -86,9 +86,14 @@ curl -s -X POST http://localhost:8080/v1/analises-risco \
        "tipoTransacao":"PIX","valorTransacao":1500.00}'
 ```
 
-**Esperado**: `NEGADA`. Faixa 2 soma 400, lista restritiva soma 200 ⇒ 600? Nao: verifique o
-conjunto efetivo do PIX com o cenario 7 antes de concluir — este cenario existe justamente para
-ser conferido contra as regras cadastradas, nao contra um numero memorizado.
+**Esperado**: `APROVADA`. No conjunto efetivo do PIX, a faixa de R$300,01 a R$5.000,00 soma 400 e
+a regra de CPF em lista restritiva soma 200 — score 600, que cai em `MEDIO`, e a politica inicial
+aprova MEDIO.
+
+Constar em lista restritiva **agrava** a pontuacao; nao e negativa automatica. Quem decide e a
+tabela de faixas, nao a regra: o cenario 6 nega esta mesma transacao apenas mudando a decisao da
+faixa MEDIO. Para conferir as regras que produziram o 600, consulte o conjunto efetivo do PIX
+como no cenario 4, trocando o parametro para `tipoTransacao=PIX`.
 
 ### 4 — Heranca por chave de sobreposicao
 

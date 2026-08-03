@@ -499,12 +499,21 @@ curl -s -X POST http://localhost:8080/v1/analises-risco -H 'Content-Type: applic
 ### 11 · Mascaramento em log, dado real na trilha
 
 ```bash
-docker compose logs | grep -c '11144477735'   # → 0
+curl -s -X POST http://localhost:8080/v1/analises-risco -H 'Content-Type: application/json' \
+  -d '{"cpf":"11144477735","ip":"198.51.100.10",
+       "idDispositivo":"11111111-1111-4111-8111-111111111111",
+       "tipoTransacao":"PIX","valorTransacao":1500.00}'
+
+docker compose logs api-analise-risco servico-listas motor-decisao servico-auditoria \
+  | grep -c '11144477735'   # → 0
+
 curl -s 'http://localhost:8083/v1/trilhas?cpf=11144477735' \
   -H 'X-Api-Key: chave-desenvolvimento' | jq '.[0].cpf'   # → "11144477735"
 ```
 
-Log e trilha têm públicos e controles de acesso diferentes.
+O CPF atravessa os quatro serviços e não aparece em nenhum log; na trilha, está em claro. Log e
+trilha têm públicos e controles de acesso diferentes. O escopo nos quatro serviços é deliberado: o
+container efêmero de seed ecoa a massa que carregou e não faz parte da plataforma.
 
 ### 12 · Carga e medição de latência
 
