@@ -25,6 +25,13 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        # O envio parte do CRUD administrativo. Sem teto explicito, o produtor bloqueia ate o
+        # default de 60 s buscando metadata quando o broker esta fora, prendendo a thread da
+        # requisicao — a escrita ja foi confirmada no Postgres, que e a fonte de verdade.
+        max.block.ms: ${KAFKA_MAX_BLOCK_MS:500}
+        request.timeout.ms: ${KAFKA_REQUEST_TIMEOUT_MS:2000}
+        delivery.timeout.ms: ${KAFKA_DELIVERY_TIMEOUT_MS:5000}
     consumer:
       # group.id unico por instancia: invalidacao de cache exige fan-out para todas as replicas.
       # Com group compartilhado, o Kafka entregaria o evento a uma unica replica.
