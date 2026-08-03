@@ -73,7 +73,6 @@ services:
       DB_SENHA: acme
       KAFKA_SERVIDORES: kafka:9092
       API_KEY: chave-desenvolvimento
-      HOSTNAME: motor-decisao-1
     ports:
       - "8082:8082"
     depends_on:
@@ -125,7 +124,6 @@ services:
       URL_SERVICO_LISTAS: http://servico-listas:8081
       URL_MOTOR_DECISAO: http://motor-decisao:8082
       API_KEY: chave-desenvolvimento
-      HOSTNAME: api-analise-risco-1
     ports:
       - "8080:8080"
     depends_on:
