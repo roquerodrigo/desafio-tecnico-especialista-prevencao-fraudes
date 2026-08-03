@@ -22,12 +22,11 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        # O envio parte do caminho da requisicao. Sem teto explicito, o produtor bloqueia ate o
-        # default de 60 s buscando metadata quando o broker esta fora — a analise ficaria presa
-        # muito alem do orcamento de 150 ms para publicar uma trilha que e assincrona por design.
+        # O send parte da thread da requisicao e, sem teto, bloqueia buscando metadata ate o
+        # default de 60 s quando o broker esta fora. Limita o dano a meio segundo; a entrega em si
+        # segue assincrona, com a janela de retentativa padrao — encurta-la faria a trilha, que ja
+        # se perde em silencio quando falha, se perder mais cedo.
         max.block.ms: ${KAFKA_MAX_BLOCK_MS:500}
-        request.timeout.ms: ${KAFKA_REQUEST_TIMEOUT_MS:2000}
-        delivery.timeout.ms: ${KAFKA_DELIVERY_TIMEOUT_MS:5000}
     consumer:
       # Unico por instancia: invalidacao de cache precisa de fan-out para todas as replicas.
       group-id: ${app.kafka.grupo-cache-faixas}
