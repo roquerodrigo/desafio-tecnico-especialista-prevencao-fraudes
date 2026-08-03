@@ -84,9 +84,9 @@ Mesma semantica de sinal: o consumidor rele a tabela de faixas.
   "idDispositivo": "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
   "tipoTransacao": "PIX",
   "valorTransacao": 1500.00,
-  "score": 700,
-  "classificacao": "ALTO",
-  "decisao": "NEGADA",
+  "score": 600,
+  "classificacao": "MEDIO",
+  "decisao": "APROVADA",
   "consultaListasDegradada": false,
   "regrasAcionadas": [
     { "chave": "faixa_valor_2", "acao": "SOMAR", "pontos": 400 },

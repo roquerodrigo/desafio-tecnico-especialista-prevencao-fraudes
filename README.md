@@ -511,9 +511,13 @@ curl -s 'http://localhost:8083/v1/trilhas?cpf=11144477735' \
   -H 'X-Api-Key: chave-desenvolvimento' | jq '.[0].cpf'   # → "11144477735"
 ```
 
-O CPF atravessa os quatro serviços e não aparece em nenhum log; na trilha, está em claro. Log e
-trilha têm públicos e controles de acesso diferentes. O escopo nos quatro serviços é deliberado: o
-container efêmero de seed ecoa a massa que carregou e não faz parte da plataforma.
+O CPF entra pela borda, vai às listas e chega à trilha pelo evento — e não aparece no log de nenhum
+desses três serviços. No `motor-decisao` o zero tem outra origem, mais forte: o contrato dele não
+recebe CPF, porque ele decide sobre pertinência já apurada. Na trilha, o dado está em claro: log e
+trilha têm públicos e controles de acesso diferentes.
+
+O escopo nos serviços da plataforma é deliberado — o container efêmero de seed ecoa a massa que
+carregou e não faz parte dela.
 
 ### 12 · Carga e medição de latência
 
