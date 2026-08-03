@@ -102,10 +102,15 @@ class MascaramentoLogIT {
         capturaDeLog.stop();
     }
 
+    /**
+     * Inclui os valores do MDC: no formato estruturado, cada entrada do MDC vira campo da linha
+     * emitida, entao o conjunto inspecionado aqui precisa ser o mesmo que o formatador serializa.
+     */
     private List<String> mensagensCapturadas() {
         return capturaDeLog.list.stream()
                 .map(evento -> evento.getFormattedMessage()
-                        + " " + java.util.Arrays.toString(evento.getArgumentArray()))
+                        + " " + java.util.Arrays.toString(evento.getArgumentArray())
+                        + " " + evento.getMDCPropertyMap().values())
                 .toList();
     }
 

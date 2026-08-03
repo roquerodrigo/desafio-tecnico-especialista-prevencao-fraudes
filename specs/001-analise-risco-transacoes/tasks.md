@@ -59,7 +59,7 @@ Convencao de teste: `*Test.java` = unitario (sem Docker); `*IT.java` = integraca
 - [x] T014 [P] Criar `MascaradorDadosSensiveis` em cada modulo que registra log, mascarando CPF (`529****4725`), IP (ultimo octeto) e UUID de dispositivo
 - [x] T015 [P] Criar `MascaradorDadosSensiveisTest` verificando que nenhum valor completo sobrevive ao mascaramento
 - [x] T016 Criar `FiltroCorrelacao` (servlet filter) nos quatro modulos: aceita `X-Correlation-Id`, gera se ausente, popula MDC e devolve no cabecalho da resposta
-- [x] T017 [P] Configurar log estruturado JSON nos quatro `application.yml`, incluindo o campo de correlacao do MDC
+- [x] T017 [P] Configurar log estruturado JSON nos `application.yml` de todos os modulos, incluindo o campo de correlacao do MDC
 - [x] T018 [P] Criar `TratadorErroGlobal` (`@RestControllerAdvice`) nos quatro modulos produzindo `ProblemDetail` conforme RFC 9457, com lista de erros de campo para `400`
 - [x] T019 [P] Criar `FiltroApiKey` validando `X-Api-Key` apenas nas rotas administrativas, com a chave vinda de propriedade
 - [x] T020 [P] Criar `FiltroApiKeyTest` verificando rota administrativa sem chave (`401`), com chave errada (`401`), com chave correta (`200`) e rota publica sem chave (`200`)
