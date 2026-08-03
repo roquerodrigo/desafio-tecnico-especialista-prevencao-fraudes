@@ -94,13 +94,13 @@ specs/001-analise-risco-transacoes/
 ### Source Code (repository root)
 
 ```text
-settings.gradle                     # inclui os 4 modulos
+settings.gradle                     # inclui os modulos sob `modulos/`
 build.gradle                        # convencoes comuns: toolchain, JaCoCo, deps de teste
 gradle/wrapper/                     # wrapper versionado
-docker-compose.yml                  # postgres, dynamodb-local, kafka, 4 apps, seed
+docker-compose.yml                  # postgres, dynamodb-local, kafka, apps, seed
 docs/
 ├── adr/                            # um ADR por decisao arquitetural
-└── decisoes-autonomas.md           # decisoes tomadas em execucao autonoma
+└── desafio.md                      # enunciado do desafio
 
 modulos/api-analise-risco/
 ├── build.gradle
@@ -138,10 +138,18 @@ modulos/servico-auditoria/
     ├── dominio/                    # TrilhaDecisao
     ├── aplicacao/
     └── infraestrutura/{web,persistencia,mensageria}
+
+modulos/gerador-trafego/            # auxiliar: gera carga e mede p95 (ADR 0009)
+└── src/main/java/br/com/acme/geradortrafego/
+
+infra/
+├── Dockerfile                      # unico, parametrizado pelo modulo
+├── postgres-init.sql               # cria os 3 bancos
+└── seed-listas.sh                  # massa dos cenarios do quickstart
 ```
 
-**Structure Decision**: monorepo Gradle multi-modulo com quatro modulos independentes, cada um
-um Spring Boot executavel. Nao existe modulo compartilhado: DTOs de fronteira sao duplicados de
+**Structure Decision**: monorepo Gradle multi-modulo com os modulos sob `modulos/` — quatro de
+negocio mais o `gerador-trafego` auxiliar, cada um um Spring Boot executavel. Nao existe modulo compartilhado: DTOs de fronteira sao duplicados de
 proposito e traduzidos na camada de ACL. Biblioteca comum acoplaria o ciclo de release dos
 quatro servicos, o que contraria a evolucao independente esperada em MSA — duplicar tres
 records e mais barato que esse acoplamento.

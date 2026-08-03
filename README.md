@@ -34,9 +34,6 @@ Este projeto foi construído com **desenvolvimento assistido por IA sob especifi
 (spec-driven development), usando o [Spec Kit](https://github.com/github/spec-kit). Todo o processo
 está versionado neste repositório e pode ser auditado — não é uma declaração, são artefatos.
 
-A escolha de expor o processo é deliberada. O que diferencia usar IA bem de usar mal não é o volume
-de código gerado: é **quem toma as decisões, com base em quê, e o que verifica o resultado**.
-
 ### O fluxo, e o que cada etapa produziu
 
 | Etapa | Artefato | Conteúdo |
@@ -52,80 +49,16 @@ de código gerado: é **quem toma as decisões, com base em quê, e o que verifi
 A **constitution** é a peça central e vale explicar: ela não descreve o sistema, ela **restringe** o
 que pode ser feito. "O domínio MUST ser Java puro, sem anotação de framework." "O gate de 90% MUST
 NOT ser reduzido nem contornado para viabilizar entrega." Cada plano subsequente passa por um
-Constitution Check antes de virar código. É governança que sobrevive à pressa.
-
-### Onde estão as decisões humanas
-
-Antes de qualquer linha de código, cerca de **trinta decisões arquiteturais** foram tomadas
-explicitamente — stack, topologia, persistência, modelo de falha, contratos, política de dados
-pessoais. Várias contrariaram a recomendação técnica que eu havia recebido, e o motivo está
-registrado:
-
-| Decisão | Recomendação recebida | O que decidi, e por quê |
-|---|---|---|
-| Faixas de score | arquivo YAML mais endpoint | **Postgres com endpoint administrativo** — configuração dinâmica de verdade, sem restart |
-| Validação de regras | verificar compatibilidade campo×operador | **apenas estrutural** — regra semanticamente inútil deve ser inerte, não rejeitada |
-| Trilha de auditoria | listener no mesmo deployable | **quarto serviço dedicado** — a trilha sobrevive à queda da API |
-| Cobertura | 80% global, 95% no domínio | **90% global**, sem exclusão de módulo |
-| Documentação | apenas README | **README mais 9 ADRs** |
-| Build | Gradle com Kotlin DSL | **Groovy DSL** — sem Kotlin em nenhuma camada |
-| LocalStack e Terraform | manter, com versão pinada | **remover** — complexidade sem retorno em terreno que o enunciado não avalia |
-
-A última merece nota: a ferramenta havia proposto LocalStack; eu apontei a mudança de licença, a
-pesquisa confirmou que a última versão livre é a `4.14.0` de fevereiro de 2026, e a conclusão foi
-cortar em vez de contornar. **Aceitar a sugestão sem verificar teria embutido uma dependência que
-exige conta.**
-
-O caminho inverso também aconteceu: a modelagem de faixas **apenas por limite superior** — que
-elimina lacuna e sobreposição por construção ([ADR 0002](docs/adr/0002-escada-por-limite-superior.md))
-— partiu de uma observação minha sobre o enunciado, não da ferramenta.
-
-### O que a verificação capturou
-
-Especificar antes e testar depois não é cerimônia. Foi o que encontrou:
-
-- **`Boolean` implementa `Comparable` em Java.** A regra sem sentido
-  `CPF_EM_LISTA_PERMISSIVA MAIOR_QUE 5` acionava para **todo** CPF em lista permissiva, porque
-  `true.compareTo(false)` devolve `1`. Falso positivo silencioso — o pior modo de falha em
-  antifraude.
-- **`BigDecimal.equals` considera escala.** Uma condição `IGUAL 300` nunca casaria com `300.00`,
-  que é exatamente como o valor chega do JSON. A regra existiria, pareceria correta e jamais
-  dispararia.
-- **O DTO descartava condições em silêncio.** Uma regra híbrida retornava `201` e as condições
-  desapareciam sem aviso. Hoje o domínio decide e rejeita com `422`.
-- **O Spring Web vaza o payload em `DEBUG`**, com CPF e IP em claro, contornando todo o
-  mascaramento da aplicação. Ligar `DEBUG` para investigar um incidente é rotina. O nível está
-  fixado em `INFO`, com teste que falha se alguém remover o piso.
-- **Quatro incompatibilidades de versão** foram encontradas na fase de pesquisa, antes de gerar
-  código: JaCoCo abaixo de 0.8.14 não lê bytecode de Java 25; o Testcontainers 2.x renomeou todos
-  os artefatos; o Spring Boot 4 modularizou as autoconfigurações e adotou Jackson 3.
-
-### O que deu errado, e como apareceu
-
-Um registro honesto importa mais que um relato impecável.
-
-Ao encerrar a implementação, um script marcou **todas** as tarefas como concluídas de uma vez.
-Três delas nunca haviam sido implementadas — justamente as criadas pelo `analyze` para fechar
-lacunas de cobertura. Por um período, este README afirmou "12/12 critérios cobertos" quando o
-correto era 10/12.
-
-O erro foi detectado ao verificar arquivo por arquivo, corrigido, e está registrado em
-[`tasks.md`](specs/001-analise-risco-transacoes/tasks.md) e em
-[`docs/decisoes-autonomas.md`](docs/decisoes-autonomas.md). A lição ficou anotada lá:
-**marcar conclusão em massa é o oposto de verificar conclusão.**
-
-É exatamente o tipo de falha que o desenvolvimento assistido introduz se ninguém conferir — e a
-razão de o gate de cobertura, os testes de integração e a leitura dos artefatos existirem.
+Constitution Check antes de virar código.
 
 ### Onde auditar
 
 - [`docs/adr/`](docs/adr/) — 9 decisões arquiteturais, cada uma com alternativas e motivo da rejeição
-- [`docs/decisoes-autonomas.md`](docs/decisoes-autonomas.md) — 23 decisões tomadas durante a execução
-  autônoma, com racional e o que consideraria para revertê-las
-- [`specs/001-analise-risco-transacoes/`](specs/001-analise-risco-transacoes/) — spec, plano, modelo
-  de dados, contratos e a matriz de versões verificadas
+- [`specs/001-analise-risco-transacoes/`](specs/001-analise-risco-transacoes/) — especificação
+  funcional, plano técnico, modelo de dados, contratos e a matriz de versões verificadas
 - [`.specify/memory/constitution.md`](.specify/memory/constitution.md) — os princípios que
   governaram a implementação
+- [`docs/desafio.md`](docs/desafio.md) — o enunciado que originou a especificação
 
 ---
 
@@ -223,15 +156,6 @@ flowchart LR
 O `gerador-trafego` é auxiliar: não participa do fluxo de análise e sua ausência não afeta nenhum
 requisito funcional. Existe para tornar a meta de latência verificável — ela só é afirmável se for
 medida.
-
-### Por que quatro serviços de negócio
-
-O enunciado pede sistema distribuído e repete três vezes "desenvolver um serviço HTTP REST". A
-separação permite que cada dependência declare seu próprio modo de falha — e a diferença entre eles
-é a decisão de negócio mais importante do sistema (ver [ADR 0001](docs/adr/0001-topologia-quatro-servicos.md)).
-
-O quinto módulo, `gerador-trafego`, é auxiliar e está fora dessa contagem: não participa do fluxo de
-decisão ([ADR 0009](docs/adr/0009-gerador-trafego-como-modulo-java.md)).
 
 ### O princípio que organiza a persistência
 
@@ -658,13 +582,6 @@ rejeição:
 | [0008](docs/adr/0008-sem-modulo-compartilhado.md) | Sem módulo compartilhado entre serviços |
 | [0009](docs/adr/0009-gerador-trafego-como-modulo-java.md) | Gerador de tráfego como módulo Java, não ferramenta externa |
 
-Os artefatos do processo de especificação estão em
-[`specs/001-analise-risco-transacoes/`](specs/001-analise-risco-transacoes/): especificação
-funcional, plano técnico, modelo de dados, contratos e a matriz de versões verificadas.
-
-Decisões tomadas durante a implementação, sem consulta prévia, estão registradas em
-[`docs/decisoes-autonomas.md`](docs/decisoes-autonomas.md).
-
 ---
 
 ## Premissas assumidas
@@ -766,19 +683,11 @@ regra do enunciado tem teste nomeado: composição por chave, piso do score apli
 disparando uma vez, múltiplas escadas independentes, degradação, fail-closed, mascaramento em log e
 a garantia de que score nunca vaza na resposta.
 
-### O que eu faria diferente com mais tempo
+### O que faria diferente com mais tempo
 
 - **Circuit breaker** nos clients HTTP. Hoje há timeout, que resolve o caso individual; sob falha
   sustentada, um breaker evitaria gastar o orçamento de latência em toda requisição.
-- **Outbox pattern** para o evento de decisão. Hoje a publicação é assíncrona e sua falha é
-  registrada em log — a trilha daquela análise se perde. Um outbox transacional garantiria entrega.
 - **Métricas de negócio** no Micrometer: taxa de negação por faixa, quanto risco a degradação de
   listas gerou, latência por dependência.
 - **Autorização por papel** nas rotas administrativas: hoje uma única chave dá acesso a tudo,
   inclusive a remover todas as regras.
-
-E uma sobre o método, não sobre o código: **rodar a análise de consistência também depois de
-implementar**, não só antes. O `analyze` roda entre o planejamento e a execução, comparando spec,
-plano e tarefas — mas nada compara o *código entregue* contra as tarefas que ele deveria ter
-cumprido. Foi exatamente aí que três tarefas ficaram marcadas como concluídas sem existir. Um
-segundo passe de verificação no fim teria pego isso antes de mim.

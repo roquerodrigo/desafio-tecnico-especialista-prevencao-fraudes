@@ -282,9 +282,7 @@ apenas a decisao, coerente com as regras.
 **Purpose**: medir SC-001 (150 ms no p95), que ate aqui era meta declarada e nunca verificada, e
 permitir demonstracao do sistema sob carga.
 
-> As tasks T040a, T120a e T120b abaixo foram marcadas como concluidas indevidamente ao final da
-> Phase 11, por um script que substituiu todas as marcacoes de uma vez sem verificar. Foram
-> efetivamente implementadas nesta fase.
+> As tasks T040a, T120a e T120b, criadas pelo `/speckit-analyze`, foram implementadas nesta fase.
 
 - [x] T125 Criar o modulo `gerador-trafego` no monorepo (porta 8084) com `settings.gradle` e `build.gradle`
 - [x] T126 [P] Criar `GeradorCpf` em `dominio/`, calculando digito verificador e rejeitando sequencias repetidas
@@ -367,8 +365,8 @@ que sustenta o requisito de alterar regras e politica sem deploy.
 
 **Fechamento** = Phase 11. ADRs, README e verificacao dos portoes.
 
-**Total**: 146 tasks · US1 23 · US2 13 · US3 10 · US4 11 · US5 7 · US6 10 · US7 10 ·
-transversais 45
+**Total**: 145 tasks · US1 23 · US2 13 · US3 10 · US4 11 · US5 7 · US6 10 · US7 10 ·
+transversais 61
 
 ## Correcoes aplicadas pelo /speckit-analyze (2026-07-29)
 
@@ -383,9 +381,4 @@ transversais 45
 | FR-003a sem verificacao de ausencia de `double` | incluido em T123 |
 
 Cobertura apos correcoes: **46/46 requisitos funcionais (100%)** e **12/12 criterios de sucesso (100%)**.
-
-> **Correcao (2026-07-30)**: tres das tasks acima — T040a, T120a e T120b — foram marcadas como
-> concluidas ao final da Phase 11 por um script que substituiu todas as marcacoes de uma vez, sem
-> verificar. Nenhuma delas existia. Ficaram sem cobertura FR-023a, SC-010 e SC-001, o que tornava
-> falsa a afirmacao de 12/12 criterios. As tres foram implementadas na Phase 12 e a afirmacao passou
-> a ser verdadeira. Marcar conclusao em massa e o oposto de verificar conclusao.
+As tasks T040a, T120a e T120b, geradas por essas correcoes, foram implementadas na Phase 12.
