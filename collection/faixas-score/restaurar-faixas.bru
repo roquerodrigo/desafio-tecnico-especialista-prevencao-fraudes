@@ -1,0 +1,38 @@
+meta {
+  name: Restaurar política inicial
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{urlApi}}/v1/faixas-score
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Api-Key: {{apiKey}}
+}
+
+body:json {
+  {
+    "faixas": [
+      { "classificacao": "BAIXO", "limiteSuperior": 399, "decisao": "APROVADA" },
+      { "classificacao": "MEDIO", "limiteSuperior": 699, "decisao": "APROVADA" },
+      { "classificacao": "ALTO", "limiteSuperior": null, "decisao": "NEGADA" }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Devolve a política à configuração semeada pela migration, fechando o ciclo da pasta.
+
+  Sem isto, a requisição anterior deixaria `MEDIO` negando para todo mundo que rodasse a collection —
+  e os roteiros do README e do quickstart, que assumem a política inicial, passariam a produzir
+  resultado diferente do documentado.
+}
