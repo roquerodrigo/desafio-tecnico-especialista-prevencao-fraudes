@@ -36,5 +36,10 @@ springdoc:
     path: /swagger-ui.html
 
 logging:
+  structured:
+    format:
+      # Log em JSON: o idCorrelacao propagado no MDC vira campo pesquisavel na agregacao,
+      # em vez de texto interpolado na mensagem.
+      console: logstash
   level:
     br.com.acme: INFO
