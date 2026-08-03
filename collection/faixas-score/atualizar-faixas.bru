@@ -1,0 +1,41 @@
+meta {
+  name: Atualizar faixas
+  type: http
+  seq: 2
+}
+
+put {
+  url: {{urlApi}}/v1/faixas-score
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Api-Key: {{apiKey}}
+}
+
+body:json {
+  {
+    "faixas": [
+      { "classificacao": "BAIXO", "limiteSuperior": 399, "decisao": "APROVADA" },
+      { "classificacao": "MEDIO", "limiteSuperior": 699, "decisao": "NEGADA" },
+      { "classificacao": "ALTO", "limiteSuperior": null, "decisao": "NEGADA" }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Altera a política de risco sem deploy: transações de risco médio passam a ser negadas. A mudança
+  propaga para todas as réplicas por evento Kafka, sem restart.
+
+  As faixas são declaradas **apenas por limite superior** — o limite inferior é o teto da faixa
+  anterior, o que torna lacuna e sobreposição inexpressáveis. `limiteSuperior: null` significa "sem
+  teto" e é obrigatório em exatamente uma faixa.
+
+  Para restaurar o padrão, use `399 APROVADA`, `699 APROVADA` e `null NEGADA`.
+}

@@ -1,0 +1,16 @@
+meta {
+  name: gerador-trafego
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{urlGerador}}/actuator/health
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq UP
+}

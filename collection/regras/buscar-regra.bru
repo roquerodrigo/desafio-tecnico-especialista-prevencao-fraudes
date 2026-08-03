@@ -1,0 +1,23 @@
+meta {
+  name: Buscar regra por identificador
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{urlMotor}}/v1/regras/{{idRegraEscada}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Usa o `idRegraEscada` capturado em **Criar regra de escada**.
+}

@@ -97,6 +97,16 @@ A chave administrativa de desenvolvimento é `chave-desenvolvimento`.
 
 Para derrubar tudo e zerar os dados: `docker compose down -v`.
 
+### Collection HTTP
+
+`collection/` traz a collection do [Bruno](https://www.usebruno.com) com todos os endpoints dos cinco
+serviços, o ambiente `local` já preenchido e asserções em cada requisição. Abra a pasta no Bruno ou
+execute pela linha de comando:
+
+```bash
+npx @usebruno/cli run --env local -r      # a partir de collection/
+```
+
 ### Testes
 
 ```bash

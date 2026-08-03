@@ -1,0 +1,28 @@
+meta {
+  name: Listar regras cadastradas
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{urlMotor}}/v1/regras?tipoTransacao=PIX
+  body: none
+  auth: none
+}
+
+params:query {
+  tipoTransacao: PIX
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Lista o que está cadastrado, sem composição. Remova `tipoTransacao` para ver todos os conjuntos,
+  inclusive o `PADRAO`.
+}

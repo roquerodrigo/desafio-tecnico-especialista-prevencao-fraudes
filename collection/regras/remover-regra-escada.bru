@@ -1,0 +1,23 @@
+meta {
+  name: Remover regra de escada
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{urlMotor}}/v1/regras/{{idRegraEscada}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 204
+}
+
+docs {
+  Devolve a chave `faixa_valor_2` do conjunto `TED` à herança do `PADRAO`.
+}

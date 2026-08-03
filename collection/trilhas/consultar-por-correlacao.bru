@@ -1,0 +1,34 @@
+meta {
+  name: Consultar por correlação
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{urlAuditoria}}/v1/trilhas?idCorrelacao={{idCorrelacao}}
+  body: none
+  auth: none
+}
+
+params:query {
+  idCorrelacao: {{idCorrelacao}}
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Devolve score, classificação, decisão, regras acionadas e resultado das listas — informação que
+  nunca é exposta ao cliente da análise.
+
+  Execute antes **Análise de risco › Regra OU aplicada uma única vez**, que envia este mesmo
+  `X-Correlation-Id`. O score esperado é 700, não 1100.
+
+  A trilha é gravada fora do caminho crítico, por evento Kafka: se a consulta vier vazia, repita em
+  alguns instantes.
+}

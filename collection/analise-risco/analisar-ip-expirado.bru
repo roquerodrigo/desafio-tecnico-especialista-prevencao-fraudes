@@ -1,0 +1,35 @@
+meta {
+  name: IP expirado é tratado como ausente
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{urlApi}}/v1/analises-risco
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "cpf": "{{cpfSemLista}}",
+    "ip": "{{ipRestritivoExpirado}}",
+    "idDispositivo": "{{dispositivoSemLista}}",
+    "tipoTransacao": "PIX",
+    "valorTransacao": 150.00
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.decisao: eq APROVADA
+}
+
+docs {
+  A entrada existe no DynamoDB, mas venceu. A aplicação filtra itens expirados na leitura em vez de
+  confiar no expurgo por TTL, que a AWS documenta como ocorrendo "within a few days" da expiração.
+}

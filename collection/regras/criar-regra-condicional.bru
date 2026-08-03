@@ -1,0 +1,50 @@
+meta {
+  name: Criar regra condicional (OU)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{urlMotor}}/v1/regras
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Api-Key: {{apiKey}}
+}
+
+body:json {
+  {
+    "chave": "ip_ou_dispositivo_lista_restritiva",
+    "tipoTransacao": "TED",
+    "descricao": "TED: IP ou dispositivo em lista restritiva",
+    "operadorLogico": "OU",
+    "condicoes": [
+      { "campo": "IP_EM_LISTA_RESTRITIVA", "operador": "IGUAL", "valor": "true" },
+      { "campo": "DISPOSITIVO_EM_LISTA_RESTRITIVA", "operador": "IGUAL", "valor": "true" }
+    ],
+    "acao": { "tipo": "SOMAR", "pontos": 500 }
+  }
+}
+
+vars:post-response {
+  idRegraCondicional: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  A segunda natureza de regra: condições combinadas por `E`/`OU`, em vez de escada por faixa. Com
+  `OU`, a regra soma **uma única vez**, mesmo que as duas condições sejam verdadeiras.
+
+  Campos disponíveis: `VALOR_TRANSACAO`, `TIPO_TRANSACAO`, `CPF_EM_LISTA_PERMISSIVA`,
+  `CPF_EM_LISTA_RESTRITIVA`, `IP_EM_LISTA_RESTRITIVA`, `DISPOSITIVO_EM_LISTA_RESTRITIVA`.
+  Operadores: `IGUAL`, `DIFERENTE`, `MAIOR_QUE`, `MAIOR_OU_IGUAL`, `MENOR_QUE`, `MENOR_OU_IGUAL`.
+
+  Misturar `escada` e `condicoes` na mesma regra é rejeitado com `422`: o DTO repassa tudo e deixa a
+  invariante do domínio decidir, em vez de descartar campos em silêncio.
+}

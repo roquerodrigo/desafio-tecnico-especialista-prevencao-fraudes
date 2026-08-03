@@ -1,0 +1,20 @@
+auth {
+  mode: none
+}
+
+docs {
+  # Plataforma de Análise de Risco
+
+  Collection dos cinco serviços. Selecione o ambiente **local** antes de executar — ele traz as
+  URLs, a chave administrativa de desenvolvimento e a massa carregada pelo seed do
+  `docker compose up`.
+
+  Suba o sistema com `docker compose up -d --build` e confira a pasta **Saúde** antes do resto.
+
+  Rotas administrativas exigem `X-Api-Key`: `/v1/faixas-score`, `/v1/regras`, `/v1/listas`,
+  `/v1/trilhas` e `/v1/cargas`. A análise de risco e o cálculo de score são abertos, por serem
+  chamada intra-cluster.
+
+  Todo endpoint aceita `X-Correlation-Id` e o devolve na resposta; ausente, é gerado na borda e
+  propagado entre os serviços.
+}

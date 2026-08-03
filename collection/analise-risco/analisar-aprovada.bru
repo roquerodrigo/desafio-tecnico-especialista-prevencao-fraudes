@@ -1,0 +1,37 @@
+meta {
+  name: Aprovação
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{urlApi}}/v1/analises-risco
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "cpf": "{{cpfSemLista}}",
+    "ip": "{{ipSemLista}}",
+    "idDispositivo": "{{dispositivoSemLista}}",
+    "tipoTransacao": "PIX",
+    "valorTransacao": 150.00
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.decisao: eq APROVADA
+}
+
+docs {
+  PIX até R$300 soma 300 pontos e nenhuma variável consta em lista. Score 300 = BAIXO.
+
+  A resposta traz apenas `decisao`: score e classificação não aparecem no corpo, em header nem em
+  mensagem de erro.
+}

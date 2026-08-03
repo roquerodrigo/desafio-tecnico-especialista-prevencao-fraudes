@@ -1,0 +1,37 @@
+meta {
+  name: Validação acumulada (400)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{urlApi}}/v1/analises-risco
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "cpf": "11111111111",
+    "ip": "{{ipSemLista}}",
+    "idDispositivo": "{{dispositivoSemLista}}",
+    "tipoTransacao": "PIX",
+    "valorTransacao": 0
+  }
+}
+
+assert {
+  res.status: eq 400
+}
+
+docs {
+  Devolve `400` no formato RFC 9457 com **os dois** erros de uma vez — CPF e valor —, não apenas o
+  primeiro encontrado.
+
+  O CPF `11111111111` satisfaz o cálculo do dígito verificador do módulo 11: validar só o algoritmo
+  deixaria passar onze CPFs de dígito repetido.
+}

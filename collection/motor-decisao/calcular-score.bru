@@ -1,0 +1,41 @@
+meta {
+  name: Calcular score
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{urlMotor}}/v1/scores
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "tipoTransacao": "PIX",
+    "valorTransacao": 150.00,
+    "cpfEmListaPermissiva": false,
+    "cpfEmListaRestritiva": false,
+    "ipEmListaRestritiva": true,
+    "dispositivoEmListaRestritiva": true
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.score: eq 700
+}
+
+docs {
+  O motor recebe o resultado das listas já apurado — ele não consulta nada. Mesma entrada, mesmo
+  score, testável sem rede.
+
+  Devolve `score` e `regrasAcionadas`, o detalhamento destinado à auditoria. A API de análise
+  consome esse detalhamento para a trilha e **não** o propaga ao cliente.
+
+  Aqui: 300 da faixa de valor do PIX mais 400 da regra `OU` de IP/dispositivo, somada uma única vez.
+}

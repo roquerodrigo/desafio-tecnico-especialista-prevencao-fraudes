@@ -1,0 +1,22 @@
+meta {
+  name: Relatório da carga
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{urlGerador}}/v1/cargas/atual
+  body: none
+  auth: none
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+docs {
+  Devolve a carga em andamento ou, se nenhuma estiver ativa, a última concluída — `204` se nunca
+  houve carga.
+
+  O campo `metaAtingida` compara o p95 medido com a meta de 150 ms (SC-001).
+}

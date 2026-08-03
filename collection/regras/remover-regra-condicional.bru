@@ -1,0 +1,25 @@
+meta {
+  name: Remover regra condicional
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{urlMotor}}/v1/regras/{{idRegraCondicional}}
+  body: none
+  auth: none
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 204
+}
+
+docs {
+  Fecha o ciclo da pasta: as duas regras criadas aqui são removidas, deixando o conjunto `TED` no
+  estado inicial. Assim a pasta inteira pode ser executada de novo — a chave de sobreposição é única
+  por tipo de transação e uma segunda criação colidiria.
+}

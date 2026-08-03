@@ -1,0 +1,43 @@
+meta {
+  name: Criar regra de escada
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{urlMotor}}/v1/regras
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Api-Key: {{apiKey}}
+}
+
+body:json {
+  {
+    "chave": "faixa_valor_2",
+    "tipoTransacao": "TED",
+    "descricao": "TED até R$5.000",
+    "escada": "VALOR_TRANSACAO",
+    "limiteSuperior": 5000.00,
+    "acao": { "tipo": "SOMAR", "pontos": 800 }
+  }
+}
+
+vars:post-response {
+  idRegraEscada: res.body.id
+}
+
+assert {
+  res.status: eq 201
+}
+
+docs {
+  `TED` herdava `faixa_valor_2` do `PADRAO` (300 pontos). Cadastrar a mesma chave no conjunto `TED`
+  sobrescreve a herança: uma TED de R$1.000 passa de `APROVADA` para `NEGADA` (800 = ALTO), sem
+  redeploy e sem restart — a invalidação do cache viaja por evento Kafka.
+
+  O identificador criado fica em `{{idRegraEscada}}` para as requisições seguintes.
+}

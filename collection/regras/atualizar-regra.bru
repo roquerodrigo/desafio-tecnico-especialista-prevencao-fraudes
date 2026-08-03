@@ -1,0 +1,35 @@
+meta {
+  name: Atualizar regra
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{urlMotor}}/v1/regras/{{idRegraEscada}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Api-Key: {{apiKey}}
+}
+
+body:json {
+  {
+    "chave": "faixa_valor_2",
+    "tipoTransacao": "TED",
+    "descricao": "TED até R$5.000",
+    "escada": "VALOR_TRANSACAO",
+    "limiteSuperior": 5000.00,
+    "acao": { "tipo": "SOMAR", "pontos": 350 }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Substituição integral: o corpo descreve a regra inteira, não um delta.
+}

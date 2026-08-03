@@ -1,0 +1,24 @@
+meta {
+  name: Consultar faixas
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{urlApi}}/v1/faixas-score
+  body: none
+  auth: none
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  A política de risco é dado, não código: cada faixa declara a classificação, o limite superior e a
+  decisão correspondente.
+}

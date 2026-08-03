@@ -1,0 +1,20 @@
+meta {
+  name: Interromper carga
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{urlGerador}}/v1/cargas/atual
+  body: none
+  auth: none
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+docs {
+  Interrompe a carga em andamento e devolve o relatório parcial. Responde `204` quando não há carga
+  ativa.
+}

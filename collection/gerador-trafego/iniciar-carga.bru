@@ -1,0 +1,38 @@
+meta {
+  name: Iniciar carga
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{urlGerador}}/v1/cargas
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Api-Key: {{apiKey}}
+}
+
+body:json {
+  {
+    "duracaoSegundos": 30,
+    "requisicoesPorSegundo": 50,
+    "semente": 42
+  }
+}
+
+assert {
+  res.status: eq 202
+}
+
+docs {
+  Dispara tráfego sintético com CPFs válidos e distribuição calibrada para exercitar as quatro
+  faixas de valor, os três tipos de transação e os sinais de lista. Responde imediatamente.
+
+  Todos os campos são opcionais: sem corpo, a carga usa 30 s a 50 req/s. `semente` fixa o sorteio e
+  torna a carga reproduzível; ausente ou zero, usa aleatoriedade real. Limites: 600 s e 1000 req/s.
+
+  O serviço sobe **ocioso** — nenhuma carga é gerada até esta chamada.
+}

@@ -1,0 +1,38 @@
+meta {
+  name: Regra OU aplicada uma única vez
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{urlApi}}/v1/analises-risco
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Correlation-Id: {{idCorrelacao}}
+}
+
+body:json {
+  {
+    "cpf": "{{cpfSemLista}}",
+    "ip": "{{ipRestritivo}}",
+    "idDispositivo": "{{dispositivoRestritivo}}",
+    "tipoTransacao": "PIX",
+    "valorTransacao": 150.00
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  IP **e** dispositivo constam em lista restritiva. A regra com operador lógico `OU` soma uma única
+  vez: score 700 (300 da faixa de valor + 400 da regra), não 1100.
+
+  Confirme pela trilha em **Trilha de auditoria › Consultar por correlação**, que consulta o mesmo
+  `{{idCorrelacao}}`.
+}

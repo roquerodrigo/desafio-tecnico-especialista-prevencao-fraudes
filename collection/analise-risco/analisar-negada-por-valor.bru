@@ -1,0 +1,34 @@
+meta {
+  name: Negativa por valor
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{urlApi}}/v1/analises-risco
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "cpf": "{{cpfSemLista}}",
+    "ip": "{{ipSemLista}}",
+    "idDispositivo": "{{dispositivoSemLista}}",
+    "tipoTransacao": "PIX",
+    "valorTransacao": 25000.00
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.decisao: eq NEGADA
+}
+
+docs {
+  Mesma transação da requisição anterior, acima de R$20.000: a faixa soma 700 pontos = ALTO.
+}

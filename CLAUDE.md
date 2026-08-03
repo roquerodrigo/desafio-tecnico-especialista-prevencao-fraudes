@@ -52,6 +52,8 @@ docker compose down -v                # derruba e zera os dados
 ./gradlew test --tests '*Test'        # apenas unitários, sem Docker
 ./gradlew test --tests '*IT'          # apenas integração (exige Docker)
 ./gradlew :motor-decisao:test --tests '*AvaliadorRegraTest'      # um teste de um módulo
+
+cd collection && npx @usebruno/cli run --env local -r   # collection HTTP contra o stack no ar
 ```
 
 `*Test.java` = unitário puro; `*IT.java` = integração com Testcontainers e WireMock, sob

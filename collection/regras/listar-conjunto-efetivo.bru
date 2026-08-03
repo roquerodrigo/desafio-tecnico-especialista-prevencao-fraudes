@@ -1,0 +1,33 @@
+meta {
+  name: Conjunto efetivo (composição por chave)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{urlMotor}}/v1/regras?tipoTransacao=CARTAO&efetivo=true
+  body: none
+  auth: none
+}
+
+params:query {
+  tipoTransacao: CARTAO
+  efetivo: true
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.efetivo: eq true
+}
+
+docs {
+  Devolve o conjunto após a composição com o `PADRAO`, e o campo `origem` de cada regra mostra de
+  qual conjunto ela veio.
+
+  `CARTAO` redefine apenas duas chaves — `faixa_valor_1` e `cpf_lista_permissiva`; as demais são
+  herdadas do `PADRAO`. É a chave de sobreposição tornada observável pela API.
+}

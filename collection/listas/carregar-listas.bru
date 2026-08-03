@@ -1,0 +1,58 @@
+meta {
+  name: Carregar entradas (admin)
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{urlListas}}/v1/listas
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  X-Api-Key: {{apiKey}}
+}
+
+body:json {
+  {
+    "entradas": [
+      {
+        "tipo": "CPF",
+        "valor": "{{cpfRestritivo}}",
+        "restritiva": { "idLista": "4a7e0000-0000-4000-8000-000000000001", "situacao": "ATIVA" }
+      },
+      {
+        "tipo": "CPF",
+        "valor": "{{cpfPermissivo}}",
+        "permissiva": { "idLista": "9c1f0000-0000-4000-8000-000000000001", "situacao": "ATIVA" }
+      },
+      {
+        "tipo": "IP",
+        "valor": "{{ipRestritivo}}",
+        "restritiva": { "idLista": "77b20000-0000-4000-8000-000000000001", "situacao": "ATIVA" },
+        "expiraEm": "2027-12-31T23:59:59Z"
+      },
+      {
+        "tipo": "DISPOSITIVO",
+        "valor": "{{dispositivoRestritivo}}",
+        "restritiva": { "idLista": "88c30000-0000-4000-8000-000000000001", "situacao": "ATIVA" }
+      }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Carga idempotente. Responde `processadas` e `ignoradas` — entradas com CPF inválido são
+  descartadas na carga, para que nunca exista chave que a consulta validada jamais casaria.
+
+  Tipos: `CPF`, `IP`, `DISPOSITIVO`. Apenas CPF admite lista permissiva. `expiraEm` é opcional e a
+  leitura filtra o que já venceu, independente do expurgo por TTL.
+
+  Este é o mesmo caminho usado pelo seed do `docker compose up`.
+}

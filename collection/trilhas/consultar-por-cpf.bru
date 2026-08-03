@@ -1,0 +1,31 @@
+meta {
+  name: Consultar por CPF
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{urlAuditoria}}/v1/trilhas?cpf={{cpfSemLista}}&limite=10
+  body: none
+  auth: none
+}
+
+params:query {
+  cpf: {{cpfSemLista}}
+  limite: 10
+}
+
+headers {
+  X-Api-Key: {{apiKey}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  A trilha persiste o CPF **em claro** — é base de investigação de fraude e de defesa em
+  contestação —, enquanto o log mascara o mesmo dado. Públicos e controles de acesso diferentes.
+
+  `limite` é opcional e vale 50 por padrão.
+}

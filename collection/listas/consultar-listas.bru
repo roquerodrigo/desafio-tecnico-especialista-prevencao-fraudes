@@ -1,0 +1,38 @@
+meta {
+  name: Consultar variáveis (interno)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{urlListas}}/v1/consultas-listas
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "cpf": "{{cpfAmbasListas}}",
+    "ip": "{{ipRestritivo}}",
+    "idDispositivo": "{{dispositivoRestritivo}}"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+docs {
+  Verbo `POST` de propósito: os identificadores consultados são dados pessoais e não devem trafegar
+  em query string, onde apareceriam em log de servidor e histórico de proxy.
+
+  Pertinência nula significa "não consta". As três variáveis vão em um único round-trip
+  (`BatchGetItem` multi-tabela), e não há cache local — a escrita é imediatamente visível a todas as
+  réplicas.
+
+  Rota aberta por ser chamada intra-cluster; a proteção por `X-Api-Key` cobre apenas `/v1/listas`.
+}
