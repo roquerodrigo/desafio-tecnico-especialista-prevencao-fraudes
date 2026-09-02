@@ -1,5 +1,7 @@
 # Plataforma de Análise de Risco de Transações
 
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors&logoColor=white&style=for-the-badge)](https://github.com/sponsors/roquerodrigo)
+
 Sistema distribuído que avalia o risco de transações financeiras e devolve uma decisão de
 aprovação. Desafio técnico para Especialista em Prevenção a Fraudes.
 
@@ -714,3 +716,7 @@ a garantia de que score nunca vaza na resposta.
   listas gerou, latência por dependência.
 - **Autorização por papel** nas rotas administrativas: hoje uma única chave dá acesso a tudo,
   inclusive a remover todas as regras.
+
+## Apoie o projeto
+
+Este projeto é desenvolvido e mantido em tempo pessoal. Se for útil para você, considere [patrocinar o trabalho](https://github.com/sponsors/roquerodrigo) — é o que mantém o desenvolvimento, os testes e as publicações acontecendo.
