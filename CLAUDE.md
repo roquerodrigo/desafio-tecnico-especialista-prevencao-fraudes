@@ -56,9 +56,10 @@ docker compose down -v                # derruba e zera os dados
 cd collection && npx @usebruno/cli run --env local -r   # collection HTTP contra o stack no ar
 ```
 
-`*Test.java` = unitário puro; `*IT.java` = integração com Testcontainers e WireMock, sob
-`@ActiveProfiles("teste")`. Não há linter separado: o portão é o `build`, que encadeia
-`jacocoTestCoverageVerification`.
+`*Test.java` = unitário puro; `*IT.java` = integração com Testcontainers e/ou WireMock. Só os
+módulos com `src/test/resources/application-teste.yml` rodam sob `@ActiveProfiles("teste")`;
+`servico-listas` e `gerador-trafego` configuram o IT por `@DynamicPropertySource`. Não há linter
+separado: o portão é o `build`, que encadeia `jacocoTestCoverageVerification`.
 
 Portas: 8080 api-analise-risco · 8081 servico-listas · 8082 motor-decisao · 8083 servico-auditoria ·
 8084 gerador-trafego (auxiliar, sobe ocioso). Chave administrativa de desenvolvimento:
