@@ -3,7 +3,7 @@ name: analise-risco
 services:
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: acme
       POSTGRES_PASSWORD: acme
@@ -35,7 +35,7 @@ services:
       retries: 20
 
   kafka:
-    image: apache/kafka:3.9.0
+    image: apache/kafka:4.3.1
     environment:
       # Modo KRaft: sem Zookeeper.
       KAFKA_NODE_ID: 1
@@ -190,7 +190,7 @@ services:
 
   # Container efemero: popula as listas com a massa dos cenarios do quickstart e encerra.
   seed:
-    image: alpine:3.21
+    image: alpine:3.24
     depends_on:
       servico-listas:
         condition: service_healthy
