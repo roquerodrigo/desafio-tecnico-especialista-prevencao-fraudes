@@ -3,7 +3,7 @@
 # Dockerfile unico, parametrizado pelo modulo. O enunciado declara que Dockerfile nao e avaliado;
 # ele existe apenas para tornar o docker-compose executavel.
 
-FROM gradle:9.6.1-jdk25 AS construcao
+FROM gradle:9.8.2-jdk25 AS construcao
 ARG MODULO
 WORKDIR /projeto
 
