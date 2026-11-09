@@ -3,7 +3,7 @@ name: analise-risco
 services:
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: acme
       POSTGRES_PASSWORD: acme
@@ -35,7 +35,7 @@ services:
       retries: 20
 
   kafka:
-    image: apache/kafka:3.9.0
+    image: apache/kafka:4.3.1
     environment:
       # Modo KRaft: sem Zookeeper.
       KAFKA_NODE_ID: 1
